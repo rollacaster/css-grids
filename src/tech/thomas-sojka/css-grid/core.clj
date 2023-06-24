@@ -1,6 +1,7 @@
 ^{:nextjournal.clerk/visibility {:code :hide}}
 (ns tech.thomas-sojka.css-grid.core
   (:require [nextjournal.clerk :as clerk]
+            [nextjournal.clerk.viewer :as v]
             [clojure.string :as str]))
 
 ^{:nextjournal.clerk/visibility {:code :hide :result :hide}}
@@ -16,10 +17,25 @@
    {:class (str/join " " [class "min-h-[100px]"])}
    children])
 
+^{:nextjournal.clerk/visibility {:code :hide :result :hide}}
+(def main-content
+  [:<>
+   [:div.mb-1.text-gray-800 "My Great side Project"]
+   [:div.flex.gap-1.flex-wrap
+    (repeat 40
+            [:div.w-4.h-4.bg-gray-400])]])
+
+^{:nextjournal.clerk/visibility {:code :hide :result :hide}}
+(def page2-content
+  [:<>
+   [:DIV.mb-1.text-gray-800 "Page 2 of my Great side Project"]
+   [:div.flex.gap-1.flex-wrap
+    (repeat 20
+            [:div.w-4.h-4.bg-gray-400])]])
+
 ; # Exploring CSS Grids
 
 ; I've been ignoring CSS Grids for a long time and programmed layouts happily in the past using CSS flexbox and and the nomal CSS flow layout. But CSS Grids always felt like a that could solve some pain paints I have with those layout methods easier. I never found the time so far to explore that. I've got some time now, so let's dive in.
-
 
 
 ; ## Motivation
@@ -32,10 +48,7 @@
   [:div.border
    {:style {:width 300 :height 195}}
    [:main.p-4
-    [:div.mb-1.text-gray-800 "My Great side Project"]
-    [:div.flex.gap-1.flex-wrap
-     (repeat 40
-             [:div.w-4.h-4.bg-gray-400])]]]))
+    main-content]]))
 
 ^{:nextjournal.clerk/visibility {:code :hide}}
 (clerk/row
@@ -46,15 +59,84 @@
   [:div.border
    {:style {:width 300 :height 195}}
    [:header.bg-gray-400.px-4.text-gray-100 "Header"]
-   [:main.p-4
-    [:div.mb-1.text-gray-800 "My Great side Project"]
-    [:div.flex.gap-1.flex-wrap
-     (repeat 40
-             [:div.w-4.h-4.bg-gray-400])]]
+   [:main.p-4 main-content]
    [:footer.bg-gray-400.px-4.text-gray-100 "Footer"]]))
 
-;; The main layout method I need here is simply CSS flow layout to which places the header, my content and the footer beneath each other. But it doesn't take too long until the project expands and needs a second page.
 
+^{:nextjournal.clerk/visibility {:code :hide}}
+(clerk/row
+ (clerk/md
+  "But it doesn't take too long until the project expands and needs a second page. Quit often the second page has less content and the does not stick to the edge of the screen.")
+
+ ^{:nextjournal.clerk/visibility {:code :hide}}
+(clerk/row
+ (clerk/with-viewer {:transform-fn clerk/mark-presented
+                     :render-fn '(fn [{:keys [main-content
+                                             page2-content]}]
+                                   (reagent.core/with-let [x (reagent.core/atom :page-2)]
+                                     [:div.border
+                                      {:style {:width 300 :height 195}}
+                                      [:header.bg-gray-400.px-4.text-gray-100.flex.justify-between
+                                       [:div "Header"]
+                                       [:nav
+                                        [:ul.flex.gap-1
+                                         [:li [:button
+                                               {:on-click #(reset! x :page-1)
+                                                :class [(when (= @x :page-1) "underline")]}
+                                               "Page 1"]]
+                                         [:li [:button
+                                               {:on-click #(reset! x :page-2)
+                                                :class [(when (= @x :page-2) "underline")]}
+                                               "Page 2"]]]]]
+                                      [:main.p-4
+                                       (condp = @x
+                                         :page-1 main-content
+                                         :page-2 page2-content)]
+                                      [:footer.bg-gray-400.px-4.text-gray-100 "Footer"]]))}
+   {:page2-content page2-content
+    :main-content main-content})))
+
+^{:nextjournal.clerk/visibility {:code :hide}}
+(clerk/row
+ (clerk/md
+  "It's possible to solve that with flexbox but the solution is a bit eddgy")
+
+ ^{:nextjournal.clerk/visibility {:code :hide}}
+(clerk/row
+ (clerk/with-viewer {:transform-fn clerk/mark-presented
+                     :render-fn '(fn [{:keys [main-content
+                                             page2-content]}]
+                                   (reagent.core/with-let [x (reagent.core/atom :page-2)]
+                                     [:div.border.flex.flex-col.overflow-scroll
+                                      {:style {:width 300 :height 195}}
+                                      [:header.bg-gray-400.px-4.text-gray-100.flex.justify-between
+                                       [:div "Header"]
+                                       [:nav
+                                        [:ul.flex.gap-1
+                                         [:li [:button
+                                               {:on-click #(reset! x :page-1)
+                                                :class [(when (= @x :page-1) "underline")]}
+                                               "Page 1"]]
+                                         [:li [:button
+                                               {:on-click #(reset! x :page-2)
+                                                :class [(when (= @x :page-2) "underline")]}
+                                               "Page 2"]]
+                                         [:li [:button
+                                               {:on-click #(reset! x :page-3)
+                                                :class [(when (= @x :page-3) "underline")]}
+                                               "Page 3"]]]]]
+                                      [:main.p-4.flex-1
+                                       (condp = @x
+                                         :page-1 main-content
+                                         :page-2 page2-content
+                                         :page-3 [:<>
+                                                  [:div.mb-1.text-gray-800 "Page 3 of my Great side Project"]
+                                                  [:div.flex.gap-1.flex-wrap
+                                                   (repeat 80
+                                                           [:div.w-4.h-4.bg-gray-400])]])]
+                                      [:footer.bg-gray-400.px-4.text-gray-100 "Footer"]]))}
+   {:page2-content page2-content
+    :main-content main-content})))
 
 
 ;; I loose some time googling how to spin up my initial layout. So I thought it's time to dig deeper into this topic to increase my understanding instead of copying some snippets until it worked.
