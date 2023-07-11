@@ -1,8 +1,8 @@
 ^{:nextjournal.clerk/visibility {:code :hide}}
 (ns tech.thomas-sojka.css-grid.core
   (:require [nextjournal.clerk :as clerk]
-            [nextjournal.clerk.viewer :as v]
-            [clojure.string :as str]))
+            [tech.thomas-sojka.css-grid.util :as util]
+            [hiccup2.core :as h]))
 
 ^{:nextjournal.clerk/visibility {:code :hide :result :hide}}
 (defn box
@@ -12,229 +12,263 @@
     {:style style :class class :contenteditable "true"} content]))
 
 ^{:nextjournal.clerk/visibility {:code :hide :result :hide}}
-(defn container [{:keys [class style]} & children]
-  [:div.overflow-auto.gap-1.border
-   {:class (str/join " " [class "min-h-[100px]"])}
-   children])
+(defn container2 [{:keys [style class]} & children]
+  (into
+   [:div.border
+    {:class (str "gap-[2px] w-[300px] h-[195px] " class)
+     :style style}]
+   children))
 
 ^{:nextjournal.clerk/visibility {:code :hide :result :hide}}
-(def main-content
-  [:<>
-   [:div.mb-1.text-gray-800 "My Great side Project"]
-   [:div.flex.gap-1.flex-wrap
-    (repeat 40
-            [:div.w-4.h-4.bg-gray-400])]])
+(def aside
+  [:aside.bg-gray-400.py-4.px-2.text-gray-100 "Sidebar"])
 
 ^{:nextjournal.clerk/visibility {:code :hide :result :hide}}
-(def page2-content
-  [:<>
-   [:DIV.mb-1.text-gray-800 "Page 2 of my Great side Project"]
-   [:div.flex.gap-1.flex-wrap
-    (repeat 20
-            [:div.w-4.h-4.bg-gray-400])]])
+(def main-content2
+  [:main.p-4
+   [:div.mb-1.text-gray-800 "Page Title"]
+   [:section.text-sm "Lorem ipsum dolor sit amet, consectetuer adipiscing elit."] ])
+
+^{:nextjournal.clerk/visibility {:code :hide :result :hide}}
+(defn footer [{:keys [style class]}]
+  [:footer.text-center.bg-gray-400.px-4.text-gray-100
+   {:style style :class class}
+   "Footer"])
+
+^{:nextjournal.clerk/visibility {:code :hide :result :hide}}
+(def html-string
+  (clerk/update-val #(clerk/code (str (h/html (util/remove-class-styling %))))))
+
+^{:nextjournal.clerk/visibility {:code :hide :result :hide}}
+(def prettier-viewer
+  {:transform-fn html-string
+   :render-fn '(fn [value]
+                 (defn loadJS [file-url]
+                   (let [scriptEle (.createElement js/document "script")]
+                     (.setAttribute scriptEle "src" file-url)
+                     (.setAttribute scriptEle "type" "text/javascript")
+                     (.appendChild (.-body js/document) scriptEle)
+                     (.addEventListener
+                      scriptEle
+                      "load"
+                      (fn []  (.highlightAll js/window.hljs)))
+                     (.addEventListener
+                      scriptEle
+                      "error"
+                      (fn [ev] (.log js/console "Error on loading file" ev)))))
+                 (when value
+                   [nextjournal.clerk.render/with-d3-require {:package ["prettier@2.8.8/parser-babel.js"
+
+                                                                        "prettier@2.8.8/standalone.js"]}
+                    (fn [prettier]
+                      (loadJS "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.8.0/build/highlight.min.js" )
+                      [:<>
+                       [:link {:rel "stylesheet" :href "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/default.min.css"}]
+                       [:pre.grid
+                        [:code
+                         (str
+                          (.format prettier value
+                                   (clj->js {:parser "babel"
+                                             :plugins [prettier]})))]]])]))})
+
+^{:nextjournal.clerk/visibility {:code :hide :result :hide}}
+(def css-viewer
+  {:transform-fn clerk/mark-presented
+   :render-fn '(fn [value]
+                 (defn loadJS [file-url]
+                   (let [scriptEle (.createElement js/document "script")]
+                     (.setAttribute scriptEle "src" file-url)
+                     (.setAttribute scriptEle "type" "text/javascript")
+                     (.appendChild (.-body js/document) scriptEle)
+                     (.addEventListener
+                      scriptEle
+                      "load"
+                      (fn [] (.highlightAll js/window.hljs)))
+                     (.addEventListener
+                      scriptEle
+                      "error"
+                      (fn [ev] (.log js/console "Error on loading file" ev)))))
+
+                 (when value
+                   [nextjournal.clerk.render/with-d3-require {:package ["prettier@2.8.8/parser-postcss.js"
+                                                                        "prettier@2.8.8/standalone.js"]}
+                    (fn [prettier]
+
+                      (loadJS "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.8.0/build/highlight.min.js" )
+                      [:<>
+                       [:link {:rel "stylesheet" :href "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/default.min.css"}]
+                       [:pre.not-prose
+                        [:code
+                         (.format prettier value
+                                  (clj->js {:parser "css"
+                                            :plugins [prettier]}))]]])]))})
+
+^{:nextjournal.clerk/visibility {:code :hide :result :hide}}
+(def line-based-styles
+  ".container {
+     display: grid;
+     grid-template-columns: auto 1fr;
+     grid-template-rows: 1fr auto;
+   }
+
+   .footer {
+     grid-column-start: 1;
+     grid-column-end: 3;
+   }")
+
+^{:nextjournal.clerk/visibility {:code :hide}}
+(clerk/html [:style line-based-styles])
+
+^{:nextjournal.clerk/visibility {:code :hide :result :hide}}
+(def line-based-example
+  (container2
+   {:class "container"}
+   aside
+   main-content2
+   (footer {:class "footer"})))
 
 ; # Exploring CSS Grids
 
-; I've been ignoring CSS Grids for a long time and programmed layouts happily in the past using CSS flexbox and and the nomal CSS flow layout. But CSS Grids always felt like a that could solve some pain paints I have with those layout methods easier. I never found the time so far to explore that. I've got some time now, so let's dive in.
+; My approach to build CSS layouts in the past was using [Normal Flow](https://developer.mozilla.org/en-US/docs/Learn/CSS/CSS_layout/Normal_Flow) and [Flexbox](https://developer.mozilla.org/en-US/docs/Learn/CSS/CSS_layout/Flexbox). However, I secretly hoped that on day [Grids](https://developer.mozilla.org/en-US/docs/Learn/CSS/CSS_layout/Grids) would revolutionize that make much of my CSS knowledge irrelevant.
 
+; I took some time for a deep dive into Grids and realized that it is not the universal solution I was hoping for. Nonetheless, it can be valuable addition to your CSS-Toolbox and I'd like to share where I think it fits in.
 
 ; ## Motivation
+; I wrote my first CSS when Bootstrap gained popularity. I had no idea what float layouts were but I was able to create any layout using bootstrap which made me happy because CSS did not get in my way of buildings websites.
+
+; It didn't take long for me to realize that centering text in divs was more complex than expected. So, the next step in my CSS journey was to learn about Flexbox. Initially, solely for centering elements, but later I learned how to build any layout using Flexbox.
+
+; I deliberately chose not to invest much time in Grid, even as its popularity grew. Flexbox served my needs quite well and was supported in IE, which is thankfully less important nowadays.
+
+; However, I always had the itch to learn Grid and hope that Grid could become my new go-to technique for layout design.
+
+; ## The basics of grid
+
+; If you haven't used grid yet, let me introduce it to you by building a simple layout that looks like that:
+
 ^{:nextjournal.clerk/visibility {:code :hide}}
-(clerk/row
- (clerk/md
-  "Whenever I start a new side project I trip over the same layout pain point. I start with my a prototype of the functionality I want to build.")
+(clerk/image "images/basic-layout.png")
 
- (clerk/html
-  [:div.border
-   {:style {:width 300 :height 195}}
-   [:main.p-4
-    main-content]]))
-
-^{:nextjournal.clerk/visibility {:code :hide}}
-(clerk/row
- (clerk/md
-  "After some time I a header and footer is added to provide structure")
-
- (clerk/html
-  [:div.border
-   {:style {:width 300 :height 195}}
-   [:header.bg-gray-400.px-4.text-gray-100 "Header"]
-   [:main.p-4 main-content]
-   [:footer.bg-gray-400.px-4.text-gray-100 "Footer"]]))
-
+;; Before we write the CSS rules for the layout, let's build up a mental model how CSS Grid works:
 
 ^{:nextjournal.clerk/visibility {:code :hide}}
 (clerk/row
- (clerk/md
-  "But it doesn't take too long until the project expands and needs a second page. Quit often the second page has less content and the does not stick to the edge of the screen.")
+ (clerk/md "When you specify an HTML element as a **grid container** all its children become interleaved with grid lines. However, this does not make any visible difference in the rendered result. For instance, if we render three boxes in a **grid container**, they will be arranged vertically, as if no **grid container** were present.")
+ (clerk/image "images/boxes.png"))
+
+^{:nextjournal.clerk/visibility {:code :hide}}
+(clerk/row
+ (clerk/md "But under the hood, the grid adds four horizontal and two vertical grid lines between each box. The key capability provided by Grid is the ability to specify the formation of these grid lines and determine the placement of each box within them.")
+ (clerk/image "images/boxes-with-grid-lines.png"))
+
+^{:nextjournal.clerk/visibility {:code :hide}}
+(clerk/row
+ (clerk/md "If we specify a 2x2 grid, the three boxes will be arranged within the existing cells, resulting in the last cell being left empty.")
+ (clerk/image "images/boxes-in-grid.png"))
+
+^{:nextjournal.clerk/visibility {:code :hide}}
+(clerk/row
+ (clerk/md "It is possible to specify the number of cells an element spans within a grid, allowing for the creation of any desired layout.")
+ (clerk/image "images/boxes-in-grid-with-stretch.png"))
+
+;; To summarize, when constructing a new layout using Grid, you begin by specifying a grid that accommodates your design. From there, you define the position and size of each element within this grid.
+
+; ### Using the grid with line-based placement
+
+
+
+;; Now that we have an understanding of how it works, let's put it into practice. Building upon our recent knowledge, we will specify the following CSS rules:
+
+^{:nextjournal.clerk/visibility {:code :hide}}
+(clerk/with-viewer css-viewer
+  line-based-styles)
+
+;; To use the Grid, we include a CSS ruleset called `container` with a display property set to `grid`. By using `grid-template-columns` and `grid-template-rows`, you define a 2x2 layout. Here, the first column is set to `auto` so it is as wide as its content, while the second column takes up the remaining space by using `1fr` (fractional unit). The rows follow the approach but in reverse. The first row expands to fill all the remaining space, while the second row adjusts its height based on its content.
+
+;; To ensure that the footer spans across both columns at the bottom, we add a second rule set that defines `grid-column-start` as `1` and `grid-column-end` as `3`. Those numbers specify the start and end grid line of the footer. By applying this class to an HTML element, it will occupy a larger portion of the grid.
+
+;; Here's the HTML structure to use the CSS classes described below:
+
+^{:nextjournal.clerk/visibility {:code :hide}}
+(clerk/with-viewer prettier-viewer
+   line-based-example)
+
+;; And here the final results of rendering that (with some additional classed added for minimal styling). Every box is positioned where it should be using Grid.
+
+^{:nextjournal.clerk/visibility {:code :hide}}
+(clerk/html
+ line-based-example)
+
+; ## Is CSS Grid the new default?
+
+;; I had a secret hope that Grid would render much of my previous layout knowledge obsolete. To check if this might be true, I did a quick research on the layout techniques used by well-known product companies. Not all pages are created equal, so I decided to distinguish between landing pages and client apps developed by each company.
+
+; Here's a breakdown of some of the primary layouts. For the analysis, I checked the layout technique used for main design components, which were most commonly the header, content, and footer sections.
+
 
  ^{:nextjournal.clerk/visibility {:code :hide}}
-(clerk/row
- (clerk/with-viewer {:transform-fn clerk/mark-presented
-                     :render-fn '(fn [{:keys [main-content
-                                             page2-content]}]
-                                   (reagent.core/with-let [x (reagent.core/atom :page-2)]
-                                     [:div.border
-                                      {:style {:width 300 :height 195}}
-                                      [:header.bg-gray-400.px-4.text-gray-100.flex.justify-between
-                                       [:div "Header"]
-                                       [:nav
-                                        [:ul.flex.gap-1
-                                         [:li [:button
-                                               {:on-click #(reset! x :page-1)
-                                                :class [(when (= @x :page-1) "underline")]}
-                                               "Page 1"]]
-                                         [:li [:button
-                                               {:on-click #(reset! x :page-2)
-                                                :class [(when (= @x :page-2) "underline")]}
-                                               "Page 2"]]]]]
-                                      [:main.p-4
-                                       (condp = @x
-                                         :page-1 main-content
-                                         :page-2 page2-content)]
-                                      [:footer.bg-gray-400.px-4.text-gray-100 "Footer"]]))}
-   {:page2-content page2-content
-    :main-content main-content})))
+(clerk/table
+ [["Normal Flow layout" "Flex layout" "Grid layout"]
+  [(clerk/caption "AirBnB Client"
+    (clerk/image "images/airbnb-app.png"))
+   (clerk/caption "Linear Client"
+    (clerk/image "images/linear-app.png"))
+   (clerk/caption "Dropbox Client"
+    (clerk/image "images/dropbox-app.png"))]
+  [(clerk/caption "Figma Landing"
+    (clerk/image "images/figma-Landing.png"))
+   (clerk/caption "Linear Landing"
+    (clerk/image "images/linear-landing.png"))
+   (clerk/caption "Spotify Client"
+    (clerk/image "images/Spotify-Client.png"))]
+  [(clerk/caption "Canva Landing"
+    (clerk/image "images/canva-Landing.png"))
+   (clerk/caption "Pitch Client"
+    (clerk/image "images/pitch-client.png"))
+   (clerk/caption "Slack Client"
+    (clerk/image "images/slack-client.png"))]
+  [(clerk/caption "Pitch Landing"
+    (clerk/image "images/pitch-landing.png"))
+   (clerk/caption "Google Landing"
+    (clerk/image "images/google-landing.png"))
+   (clerk/caption "Canva Client"
+    (clerk/image "images/canva-client.png"))]])
 
-^{:nextjournal.clerk/visibility {:code :hide}}
-(clerk/row
- (clerk/md
-  "It's possible to solve that with flexbox but the solution is a bit eddgy")
+;; Upon reviewing the pages, I couldn't identify a clear trend in the layout techniques used. The distribution of used techniques seemed relatively evenly spread. However, one notable observation was that most landing pages were commonly built using the normal flow layout. This makes a lot of sense because landing pages should guide users through a coherent sequence of information, prioritizing a linear flow over interactivity. On the other hand, the Grid layout was predominantly used in more complex client applications which provide several interactive capabilities to the user. Flexbox remained a viable option that many websites opted for as main layout technique and it's additionally almost always used to layout smaller parts of the layout.
 
- ^{:nextjournal.clerk/visibility {:code :hide}}
-(clerk/row
- (clerk/with-viewer {:transform-fn clerk/mark-presented
-                     :render-fn '(fn [{:keys [main-content
-                                             page2-content]}]
-                                   (reagent.core/with-let [x (reagent.core/atom :page-2)]
-                                     [:div.border.flex.flex-col.overflow-scroll
-                                      {:style {:width 300 :height 195}}
-                                      [:header.bg-gray-400.px-4.text-gray-100.flex.justify-between
-                                       [:div "Header"]
-                                       [:nav
-                                        [:ul.flex.gap-1
-                                         [:li [:button
-                                               {:on-click #(reset! x :page-1)
-                                                :class [(when (= @x :page-1) "underline")]}
-                                               "Page 1"]]
-                                         [:li [:button
-                                               {:on-click #(reset! x :page-2)
-                                                :class [(when (= @x :page-2) "underline")]}
-                                               "Page 2"]]
-                                         [:li [:button
-                                               {:on-click #(reset! x :page-3)
-                                                :class [(when (= @x :page-3) "underline")]}
-                                               "Page 3"]]]]]
-                                      [:main.p-4.flex-1
-                                       (condp = @x
-                                         :page-1 main-content
-                                         :page-2 page2-content
-                                         :page-3 [:<>
-                                                  [:div.mb-1.text-gray-800 "Page 3 of my Great side Project"]
-                                                  [:div.flex.gap-1.flex-wrap
-                                                   (repeat 80
-                                                           [:div.w-4.h-4.bg-gray-400])]])]
-                                      [:footer.bg-gray-400.px-4.text-gray-100 "Footer"]]))}
-   {:page2-content page2-content
-    :main-content main-content})))
+;; ## My evaluation of the Grid
+;; ### What's great about the Grid
+
+; To me, the mental model of buildings layouts with CSS Grid feels intuitive. One advantage is that it allows for the creation of complex layouts using simpler markup compared to flexbox. If I were to build the example layout we built earlier using flexbox, I would need to introduce an additional `<div>` to wrap both the sidebar and content sections. As the layout becomes more complex, using flexbox would require an increasing number of additional boxes.
+
+; A consequence of having fewer boxes is that there are also fewer places in the markup that define the layout. This means you have less places in the code to read to understand how the layout is constructed. In contrast, with flexbox, understanding the page layout requires checking each child element individually.
 
 
-;; I loose some time googling how to spin up my initial layout. So I thought it's time to dig deeper into this topic to increase my understanding instead of copying some snippets until it worked.
+;; ## What's not so great about Grid
+; When I began reading the Grid guide on MDN, I immediately noticed its extensive length. While comprehensive documentation is valuable, I couldn't help but wonder if the features of Grid are somewhat bloated compared to other layout techniques
 
-; I wrote my first CSS at the time when Bootstrap became popular. I had no idea what float layouts where but I was able to create any layout using bootstrap which made me happy because CSS did not get in my way.
+;- Grid: 29154 words
+;- Flow: 4842 words
+;- Flex: 15997 words
 
-;; It didn't take much time to notice that centering text in divs is more complicated than one would expect. So the next step in my CSS journey was learning about Flexbox. Firstly I used it only to center things, later I learned enough to build any layouts using Flexbox.
+; Grid allows to specify the same layouts with multiple different notations. I omited all the various options in my explanation of the basics to keep the introduction slim. But there are many different ways to specify the grid. Some things I ommitted:
 
-; I purposely decided not to spend a lot of time with layout since Flexbox served my needs quite well and was well supported so even after CSS Grid became more popular I did not took the time to look into it especially since I worked with a project that needed to support IE back then.
+; - Name each grid track instead of using the numbers we used (LINK)
+; - Several attributes to write less CSS rules (LINK)
+; - Give each element of your layout a name and place it via ASCII Art (link + better explanation)
+; - Define the behaviour of elements which exceed your specified grid (link)
 
-; In hindsight I still think that was a good idea. I spend my past years mostly learning more about JavaScript and React and explored other languages and found the one that suits me best which is Clojure.
+; Personally I'd prefer to have less choice, as long as it gets the job done. Even if I decide to restrict myself to a small subset of Grid that I regularly use, I might still get into a codebase which uses a different subset which will force me to learn all possible flavors of Grid in the long run.
 
-; But with every new side project I setup there's this itch that tells getting a new tool could help me to speed up my work a lot. I don't work on a project that needs to support Internet Explorer anymore, so I thought it's a good time to learn everything about CSS Grid and hope to find a new default.
+; ## Conclusion
+;; So which layout technique to use now? Instead of an easy answer I guess I have to pick the tool depending on my needs:
 
-; ## Who's using grid?
+; So, which layout technique should you choose? Unfortunately there is no simple answer, you have to consider your specific needs:
 
-;; My secret hope was that grid will make a lot of my old layout knowledge obsolete. I spimply use grid all the time after learning about it thoroughly.
+; - If you build up landing page explaining one argument at a time -> use Normal Flow
+; - If you know all the elements in advance that you want to position in a complex layout -> use Grid
+; - If you layout a dynamic number of elements -> use Flex
 
-;; To check if that might be true I checked what most well-known product companies use to structure their layout and unfortunately the result was evenly distributed.
+; Note: Those rules will have cases and might change a lot the more I use Grid. For instance, although it's possible to use Grid to style a dynamic number of elements, personally, I find Flexbox more intuitive in such cases.
 
-;; Here's a breakdown of the main layout used for a couple of highly popular product companies.
-
-;; | Flex layout    | Normal Flow layout | Grid layout    |
-;; |-------------- |------------------ |-------------- |
-;; | Linear Client  | AirBnB Client      | Dropbox Client |
-;; | Linear Landing | Apple Landing      | Spotify Client |
-;; | Pitch Client   | Shopify Landing    | Slack Client   |
-;; | Google Landing | Figma Landing      |                |
-;; |                | Canva Landing      |                |
-
-
-;; I did this analysis by checking how the main parts of a design (mostly header, content, footer) are laid out.
-
-; ## How to build a layout with grid?
-
-; ## Reflections on CSS Grid
-
-;; What I like the most about grid is that a lot of the resulting layout can be deduced by checking the properties of the grid container. After reading how the rows and cols of your grid are distributed you can already form a mental model of the final layout result. That's much harder with flexbox you need to check each child if you want to deduce how the page is layed out. Since there are less places to check there are also less places to change if you want to update the layout.
-
-;; Some things I did not like that much about grid. Is that there are too many ways to do the same thing. You can specify your grid by naming areas, using track numbers or naming your track numbers and all of these options result in additional properties you have to know and new additional syntax to name parts of your grid. The shear amount of docs on the mdn page gibes a clear hint that there is a lot of complexity. I'd rather have only one option to use Grid.
-
-;; It might seem nice that you can choose your favorite approach to using Grid and stick to that while forgettign about all the other possible ways. But it might still happen you have to switch to a code base where a different set of Grid properties are commonly used so you'd have to relearn the properties again.
-
-;; Since I am a big fan of TailwindCSS I was curios to learn which part of the Grid they implemented in their framework. The subset they choose is creating a grid and placing items in it by using numbered rows and columns. I'd guess it's a reasonable choice and think it's good that they stick to one possible approach.
-
-;; Conclusion, so which layout technique to use now?!
-
-;; Instead of an easy answer I guess I have to stick
-
-; ## When to use flexbox?
-
-; > If you are using flexbox and find yourself disabling some of the flexibility,
-; you probably need to use CSS Grid Layout.
-
-
-
-(clerk/html
- (container {:class "grid
-                     grid-cols-[min-content_1fr_min-content]
-                     grid-rows-[min-content_2fr_min-content]"}
-  (box {:class "col-span-3"} "header")
-  (box "side1")
-  (box "content")
-  (box "side2")
-  (box {:class "col-span-3"} "footer")))
-
-(clerk/html
- (container {:class "grid"}
-  (box "header")
-  (box "side1")
-  (box "content")
-  (box "side2")
-  (box "footer")))
-
-(clerk/html
- (container {:style {:display "grid"
-                     :grid-template-areas "
-                     \"header header header\"
-                      \"side1 content side2\"
-                      \"footer footer footer"
-                     :grid-template-columns "min-content 1fr min-content"
-                     :grid-template-rows "min-content 1fr min-content"}}
-            (box {:style {:grid-area "header"}} "header")
-            (box {:style {:grid-area "side1"}} "side1")
-            (box {:style {:grid-area "content"}} "content")
-            (box {:style {:grid-area "side2"}} "side2")
-            (box {:style {:grid-area "footer"}} "footer")))
-
-(clerk/html
- (container {:style {:display "grid"
-                     :grid-template-areas "
-                     \"header\"
-                     \"side1 \"
-                     \"content\"
-                     \"side2\"
-                     \"footer"}}
-            (box {:style {:grid-area "header"}} "header")
-            (box {:style {:grid-area "side1"}} "side1")
-            (box {:style {:grid-area "content"}} "content")
-            (box {:style {:grid-area "side2"}} "side2")
-            (box {:style {:grid-area "footer"}} "footer")))
+; If you made it that far, thanks for following my journey to learn about Grid, I hope you could it adds one more technique to your CSS-Toolbelt just as it did for me.
