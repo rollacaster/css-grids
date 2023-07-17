@@ -1,1 +1,3 @@
-# css-grids-for-the-impatient
+# css-grids
+
+A blog post about CSS Grid, written with clerk.
