@@ -129,22 +129,24 @@
 
 ; # Exploring the Power of CSS Grid
 
-; In the past, my approach to building CSS layouts was using [Normal Flow](https://developer.mozilla.org/en-US/docs/Learn/CSS/CSS_layout/Normal_Flow) and [Flexbox](https://developer.mozilla.org/en-US/docs/Learn/CSS/CSS_layout/Flexbox). However, I secretly hoped that one-day [Grids](https://developer.mozilla.org/en-US/docs/Learn/CSS/CSS_layout/Grids) would revolutionize that make much of my CSS knowledge irrelevant.
+; In the past, my approach to building CSS layouts was using [Normal Flow](https://developer.mozilla.org/en-US/docs/Learn/CSS/CSS_layout/Normal_Flow) and [Flexbox](https://developer.mozilla.org/en-US/docs/Learn/CSS/CSS_layout/Flexbox). However, I secretly hoped that one-day [Grid](https://developer.mozilla.org/en-US/docs/Learn/CSS/CSS_layout/Grids) would revolutionize that and make much of my CSS knowledge obsolete.
 
-; I took time to dive into Grids and realized it is not the universal solution I hoped for. Nonetheless, it can be a valuable addition to your CSS Toolbox. Now, I'd like to share where I think it fits in.
+; I took time to dive into Grid and realized it is not the universal solution I hoped for. Nonetheless, it can be a valuable addition to your CSS Toolbox. Now, I'd like to share where I think it fits in.
 
 ; ## Motivation
-; I wrote my first CSS when Bootstrap gained popularity. Back then,  Bootstrap used float layouts. I had no clue about them. Still, I could create any layout using Bootstrap, which made me happy. CSS did not get in my way of buildings websites.
+; I wrote my first CSS when [Bootstrap](https://getbootstrap.com/) gained popularity. Back then,  Bootstrap used float layouts and I had no clue about them. Still, I could create any layout using Bootstrap, which made me happy. CSS did not get in my way of buildings websites.
 
 ; Later, I realized that centering text in divs was more complex than expected. So, the next step in my CSS journey was to learn about Flexbox. Initially, solely for centering elements, but later I learned how to build any layout using Flexbox.
 
-; I deliberately chose not to invest much time in Grid, even as its popularity grew. Flexbox served my needs well and supports IE, which is thankfully less crucial nowadays.
+; Then, Grid gained popularity. I deliberately chose not to invest much time in it. Flexbox served my needs well and supports Internet Explorer, which is thankfully less crucial nowadays.
 
-; However, I was always curious about Grid and wanted to explore it as my new go-to technique for layout design. So I dived into the Grid and read all the guides and tutorials I could get. This blog post is not a thorough introduction to all the aspects of Grid. Instead, it will provide you with the basics of Grid and help you understand when to use it. You can go deeper into the rabbit hole of Grid if it feels worthwhile to you afterward.
+; However, I was always curious about Grid. I wanted to explore it as my new go-to technique for layout design. Now, I took the time to dive into Grid. I read all the guides and tutorials I could get and added the Grid to my CSS Toolbox.
+
+; This blog post is not a thorough introduction to all the aspects of Grid. Instead, it will provide you with the basics of Grid and help you understand when to use it. You can go deeper into the rabbit hole of Grid if it feels worthwhile to you afterward.
 
 ; ## The basics of Grid
 
-; If you haven't used Grid yet, let me introduce it to you by building a simple layout that looks like that:
+; If you haven't used Grid yet, let me introduce it to you. We're building a simple layout that looks like that:
 
 ^{:nextjournal.clerk/visibility {:code :hide}}
 (clerk/image "images/basic-layout.png")
@@ -153,22 +155,22 @@
 
 ^{:nextjournal.clerk/visibility {:code :hide}}
 (clerk/row
- (clerk/md "When you specify an HTML element as a **grid container**, all its children become interleaved with **grid lines**. However, this does not make any visible difference in the rendered result. For instance, if we render three boxes in a grid container, they will be placed vertically. The same happens if no grid container is present.")
+ (clerk/md "When you specify an HTML element as a **grid container**, all its children become interleaved with **grid lines**. However, this does not make any visible difference in the rendered result. For instance, if we render three boxes in a **grid container**, they will be placed vertically. The same happens if no **grid container** is present.")
  (clerk/image "images/boxes.png"))
 
 ^{:nextjournal.clerk/visibility {:code :hide}}
 (clerk/row
- (clerk/md "But under the hood, Grid adds four horizontal and two vertical grid lines between each box. Grid allows to specify the formation of these grid lines and determine the placement of each box within them.")
+ (clerk/md "But under the hood, Grid adds four horizontal and two vertical **grid lines** between each box.")
  (clerk/image "images/boxes-with-grid-lines.png"))
 
 ^{:nextjournal.clerk/visibility {:code :hide}}
 (clerk/row
- (clerk/md "If we specify a 2x2 grid, each of the three boxes box occupies a grid cell. The  last cell remains empty.")
+ (clerk/md " Grid allows to specify the formation of these **grid lines** and determine the placement of each box within them. If we specify a 2x2 grid, each of the three boxes occupies a **grid cell**. The last **grid cell** remains empty.")
  (clerk/image "images/boxes-in-grid.png"))
 
 ^{:nextjournal.clerk/visibility {:code :hide}}
 (clerk/row
- (clerk/md "We can specify the number of cells an element spans within a grid.")
+ (clerk/md "We can specify the number of **grid cells** each can element can span within a grid. This way we can expand Box3 to span both of the remaining **grid cells**.")
  (clerk/image "images/boxes-in-grid-with-stretch.png"))
 
 ;; To summarize, when constructing a new layout using Grid, you begin by specifying a grid that accommodates your design. From there, you define the position and size of each element within this grid.
@@ -180,11 +182,12 @@
 (clerk/with-viewer css-viewer
   line-based-styles)
 
-;; We include a CSS ruleset called container with a display property set to grid to activate the Grid for our HTML-Element. By using `grid-template-columns` and `grid-template-rows`, you define a 2x2 layout. Here, the first column is set to `auto` so it is as wide as its content, while the second column takes up the remaining space by using `1fr` ([fractional unit](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_grid_layout/Basic_concepts_of_grid_layout#the_fr_unit)). The rows follow the approach but in reverse. The first row expands to fill all the remaining space, while the second row adjusts its height based on its content.
+;; We include a CSS ruleset called `container` with a display property set to `grid` to activate the Grid for our HTML-Element. By using `grid-template-columns` and `grid-template-rows`, you define a 2x2 layout. Here, the first column is set to `auto` so it is as wide as its content. The second column takes up the remaining space by using `1fr` ([fractional unit](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_grid_layout/Basic_concepts_of_grid_layout#the_fr_unit)). The rows follow the approach but in reverse. The first row expands to fill all the remaining space. The second row adjusts its height based on its content.
 
-;; MENTION other values for `grid-template-rows`
+;; > **Note**
+;; > Besides `auto` and the fractional unit, there are further keywords to create your desired grid. You can find all options in the reference pages of `grid-template-rows` and `grid-template-columns`.
 
-;; The footer spans across both columns at the bottom. We add a second rule set that defines grid-column-start as 1 and grid-column-end as 3 for that. Those numbers specify the start and end grid line of the footer. We add this class to the footer element. Now, it will occupy two cells of the grid.
+;; The footer should span across both columns at the bottom. We add a second rule set `footer` for that. It defines `grid-column-start` as `1` and `grid-column-end` as `3`. Those numbers specify the start and end grid line of the footer. We add this class to the footer element. Now, it will occupy two cells of the grid.
 
 ;; Here's the HTML structure to use the CSS classes described below:
 
@@ -200,9 +203,9 @@
 
 ; ## Is CSS Grid the new default?
 
-;; I hoped that Grid would make much of my previous layout knowledge obsolete. To check if my hope was justified, I researched the layout techniques used by well-known product companies. Not all pages are created equal, so I decided to distinguish between landing pages and client apps developed by each company.
+;; I hoped that Grid would make much of my previous layout knowledge obsolete. To check if my hope was justified, I researched the layout techniques used by well-known product companies. Not all pages are created equal, so I decided to distinguish between landing pages and client apps developed.
 
-; Here's a breakdown of some of the primary layouts. For the analysis, I checked the layout technique used for the main design components, which were most commonly the header, content, and footer sections. I checked if they use Normal flow, Flexbox or Grid.
+; Here's a breakdown of some of the primary layouts. I checked the layout technique used for the main design components. Focusing on the header, content, and footer sections. I checked if they use **Normal flow**, **Flexbox** or **Grid**.
 
 
  ^{:nextjournal.clerk/visibility {:code :hide}}
@@ -235,7 +238,7 @@
 
 ;; Upon reviewing the pages, I couldn't see a clear trend for the most popular layout techniques. The distribution of layout techniques seemed evenly spread.
 
-; However, one notable observation was that most landing pages use the Normal flow layout. The reason probably is that landing pages should guide users through a coherent sequence of information, prioritizing a linear flow over interactivity.
+; However, one notable observation was that most landing pages use the Normal flow layout. The reason probably is that landing pages should guide users through a coherent sequence of information. They prioritize a linear flow over interactivity.
 
 ; On the other hand, complex client applications often use Grid layouts. They help to display multiple interactive capabilities to the user.
 
@@ -245,13 +248,13 @@
 ;; ## Personal Evaluation of the Grid
 ;; ### Advantages of the Grid
 
-; The mental model of building layouts with CSS Grid feels intuitive to me. One advantage is that you can create complex layouts using simpler markup, compared to Flexbox. If I were to build the example layout we discussed earlier using Flexbox, I would need to introduce an additional <div> to wrap the sidebar and content sections. As the layout becomes more complex, using Flexbox would require an increasing number of boxes.
+; The mental model of building layouts with CSS Grid feels intuitive to me. One advantage is that you can create complex layouts using simpler markup, compared to Flexbox. To build the example layout we discussed earlier using Flexbox, I would need to add an additional wrapper. A would need `<div>` to wrap the sidebar and content sections. As the layout becomes more complex, using Flexbox would require an increasing number of boxes.
 
 ; A consequence of having fewer boxes is that fewer places in the markup define the layout. You read fewer places in the code to understand how the layout works. In contrast with Flexbox, understanding the page layout requires checking each child element individually.
 
 
-;; ## Critique of the Grid
-; When I began reading the Grid guide on MDN, I immediately noticed its extensive length. While comprehensive documentation is valuable, I couldn't help but wonder if the features of Grid are somewhat bloated compared to other layout techniques. Those are the guides' lengths in comparison:
+;; ### Critique of the Grid
+; When I began reading the Grid guide on MDN, I immediately noticed its extensive length. Comprehensive documentation is valuable, I couldn't help but wonder if the features of Grid are somewhat bloated. Here's a comparison of the guide lengths with other layout techniques:
  ^{:nextjournal.clerk/visibility {:code :hide}}
 (clerk/vl {:$schema "https://vega.github.io/schema/vega-lite/v5.json",
            :embed/opts {:actions false}
@@ -301,6 +304,7 @@
  ^{:nextjournal.clerk/visibility {:code :hide}}
 (clerk/image "images/layout-flow.png")
 
-; Note: Those rules will have edge cases and might change the more I use Grid. For instance, it's possible to use Grid to style a dynamic number of elements, but I find Flexbox more intuitive here.
+; > **Note**
+; > Those rules will have edge cases and might change the more I use Grid. For instance, Grid can style a dynamic number of elements, but I find Flexbox more intuitive here.
 
 ; You made it to the end. Thanks for following my journey to learn about Grid. I hope you found this journey valuable and that you can add CSS Grid to your CSS Toolbox.
