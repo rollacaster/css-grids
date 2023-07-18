@@ -232,7 +232,7 @@
 ;; We include a CSS ruleset called `container` with a display property set to `grid` to activate the Grid for our HTML-Element. By using `grid-template-columns` and `grid-template-rows`, you define a 2x2 layout. Here, the first column is set to `auto` so it is as wide as its content. The second column takes up the remaining space by using `1fr` ([fractional unit](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_grid_layout/Basic_concepts_of_grid_layout#the_fr_unit)). The rows follow the approach but in reverse. The first row expands to fill all the remaining space. The second row adjusts its height based on its content.
 
 ;; > **Note**
-;; > Besides `auto` and the fractional unit, there are further keywords to create your desired grid. You can find all options in the reference pages of `grid-template-rows` and `grid-template-columns`.
+;; > Besides `auto` and the fractional unit, there are further keywords to create your desired grid. You can find all options in the reference pages of [`grid-template-rows`](https://developer.mozilla.org/en-US/docs/Web/CSS/grid-template-rows#syntax) and [`grid-template-columns`](https://developer.mozilla.org/en-US/docs/Web/CSS/grid-template-columns#syntax).
 
 ;; The footer should span across both columns at the bottom. We add a second rule set `footer` for that. It defines `grid-column-start` as `1` and `grid-column-end` as `3`. Those numbers specify the start and end grid line of the footer. We add this class to the footer element. Now, it will occupy two cells of the grid.
 
