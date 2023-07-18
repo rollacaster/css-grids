@@ -1,2 +1,6 @@
 {:deps {io.github.nextjournal/clerk {:mvn/version "0.14.919"}}
- :paths ["src" "resources" "dev"]}
+ :paths ["src" "resources" "dev"]
+ :aliases
+ {:nextjournal/clerk
+  {:exec-fn nextjournal.clerk/build!
+   :exec-args {:index "notebooks/blog.clj"}}}}

@@ -1,8 +1,8 @@
 ^{:nextjournal.clerk/visibility {:code :hide}}
 (ns tech.thomas-sojka.css-grid.core
-  (:require [nextjournal.clerk :as clerk]
-            [tech.thomas-sojka.css-grid.util :as util]
-            [hiccup2.core :as h]))
+  (:require [clojure.string :as str]
+            [hiccup2.core :as h]
+            [nextjournal.clerk :as clerk]))
 
 ^{:nextjournal.clerk/visibility {:code :hide :result :hide}}
 (defn box
@@ -36,8 +36,55 @@
    "Footer"])
 
 ^{:nextjournal.clerk/visibility {:code :hide :result :hide}}
+(defn branch? [[_ & forms]]
+     (or (vector? (first forms))
+         (vector? (second forms))))
+
+^{:nextjournal.clerk/visibility {:code :hide :result :hide}}
+(defn children [[_ & forms]]
+  (if (vector? (first forms))
+    forms
+    (rest forms)))
+
+^{:nextjournal.clerk/visibility {:code :hide :result :hide}}
+(defn walk-hiccup [f root]
+  (if (branch? root)
+    (let [[symbol first-form] root]
+      (f
+       (if (map? first-form)
+         (into [symbol first-form]
+               (for [child (children root)]
+                 (walk-hiccup f child)))
+         (into [symbol]
+               (for [child (children root)]
+                 (walk-hiccup f child))))))
+    (f root)))
+
+^{:nextjournal.clerk/visibility {:code :hide :result :hide}}
+(defn remove-class-styling-from-node [[symbol first-from & rest-forms]]
+  (into [(keyword (first (str/split (name symbol) #"\.")))]
+        (cons (if (map? first-from)
+                (cond
+                  (str/includes? (:class first-from) "container")
+                  (assoc first-from :class "container")
+
+                  (str/includes? (:class first-from) "footer")
+                  (assoc first-from :class "footer")
+
+                  :else
+                  (dissoc first-from :class))
+                first-from)
+              rest-forms)))
+
+^{:nextjournal.clerk/visibility {:code :hide :result :hide}}
+(defn remove-class-styling [hiccup]
+  (walk-hiccup
+   remove-class-styling-from-node
+   hiccup))
+
+^{:nextjournal.clerk/visibility {:code :hide :result :hide}}
 (def html-string
-  (clerk/update-val #(clerk/code (str (h/html (util/remove-class-styling %))))))
+  (clerk/update-val #(clerk/code (str (h/html (remove-class-styling %))))))
 
 ^{:nextjournal.clerk/visibility {:code :hide :result :hide}}
 (def prettier-viewer
