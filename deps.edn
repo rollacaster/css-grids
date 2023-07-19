@@ -4,5 +4,4 @@
  {:dev {:extra-paths ["dev"]}
   :nextjournal/clerk
   {:exec-fn nextjournal.clerk/build!
-   :exec-args {:index "notebooks/blog.clj"}
-   :extra-paths ["images"]}}}
+   :exec-args {:index "notebooks/blog.clj"}}}}
