@@ -2,7 +2,8 @@
 (ns tech.thomas-sojka.css-grid.core
   (:require [clojure.string :as str]
             [hiccup2.core :as h]
-            [nextjournal.clerk :as clerk]))
+            [nextjournal.clerk :as clerk]
+            [clojure.java.io :as io]))
 
 ^{:nextjournal.clerk/visibility {:code :hide :result :hide}}
 (defn box
@@ -196,29 +197,29 @@
 ; If you haven't used Grid yet, let me introduce it to you. We're building a simple layout that looks like that:
 
 ^{:nextjournal.clerk/visibility {:code :hide}}
-(clerk/image "resources/images/basic-layout.png")
+(clerk/image (io/resource "images/basic-layout.png"))
 
 ;; Before we write the CSS rules for the layout, let's build up a mental model of how CSS Grid works:
 
 ^{:nextjournal.clerk/visibility {:code :hide}}
 (clerk/row
  (clerk/md "When you specify an HTML element as a **grid container**, all its children become interleaved with **grid lines**. However, this does not make any visible difference in the rendered result. For instance, if we render three boxes in a **grid container**, they will be placed vertically. The same happens if no **grid container** is present.")
- (clerk/image "resources/images/boxes.png"))
+ (clerk/image (io/resource "images/boxes.png")))
 
 ^{:nextjournal.clerk/visibility {:code :hide}}
 (clerk/row
  (clerk/md "But under the hood, Grid adds four horizontal and two vertical **grid lines** between each box.")
- (clerk/image "resources/images/boxes-with-grid-lines.png"))
+ (clerk/image (io/resource "images/boxes-with-grid-lines.png")))
 
 ^{:nextjournal.clerk/visibility {:code :hide}}
 (clerk/row
  (clerk/md " Grid allows to specify the formation of these **grid lines** and determine the placement of each box within them. If we specify a 2x2 grid, each of the three boxes occupies a **grid cell**. The last **grid cell** remains empty.")
- (clerk/image "resources/images/boxes-in-grid.png"))
+ (clerk/image (io/resource "images/boxes-in-grid.png")))
 
 ^{:nextjournal.clerk/visibility {:code :hide}}
 (clerk/row
  (clerk/md "We can specify the number of **grid cells** each can element can span within a grid. This way we can expand Box3 to span both of the remaining **grid cells**.")
- (clerk/image "resources/images/boxes-in-grid-with-stretch.png"))
+ (clerk/image (io/resource "images/boxes-in-grid-with-stretch.png")))
 
 ;; To summarize, when constructing a new layout using Grid, you begin by specifying a grid that accommodates your design. From there, you define the position and size of each element within this grid.
 
@@ -259,29 +260,29 @@
 (clerk/table
  [["Normal Flow layout" "Flex layout" "Grid layout"]
   [(clerk/caption "AirBnB Client"
-    (clerk/image "resources/images/airbnb-app.png"))
+                  (clerk/image (io/resource "images/airbnb-app.png")))
    (clerk/caption "Linear Client"
-    (clerk/image "resources/images/linear-app.png"))
+                  (clerk/image (io/resource "images/linear-app.png")))
    (clerk/caption "Dropbox Client"
-    (clerk/image "resources/images/dropbox-app.png"))]
+                  (clerk/image (io/resource "images/dropbox-app.png")))]
   [(clerk/caption "Figma Landing"
-    (clerk/image "resources/images/figma-Landing.png"))
+                  (clerk/image (io/resource "images/figma-Landing.png")))
    (clerk/caption "Linear Landing"
-    (clerk/image "resources/images/linear-landing.png"))
+                  (clerk/image (io/resource "images/linear-landing.png")))
    (clerk/caption "Spotify Client"
-    (clerk/image "resources/images/Spotify-Client.png"))]
+                  (clerk/image (io/resource "images/Spotify-Client.png")))]
   [(clerk/caption "Canva Landing"
-    (clerk/image "resources/images/canva-Landing.png"))
+                  (clerk/image (io/resource "images/canva-Landing.png")))
    (clerk/caption "Pitch Client"
-    (clerk/image "resources/images/pitch-client.png"))
+                  (clerk/image (io/resource "images/pitch-client.png")))
    (clerk/caption "Slack Client"
-    (clerk/image "resources/images/slack-client.png"))]
+                  (clerk/image (io/resource "images/slack-client.png")))]
   [(clerk/caption "Pitch Landing"
-    (clerk/image "resources/images/pitch-landing.png"))
+                  (clerk/image (io/resource "images/pitch-landing.png")))
    (clerk/caption "Google Landing"
-    (clerk/image "resources/images/google-landing.png"))
+                  (clerk/image (io/resource "images/google-landing.png")))
    (clerk/caption "Canva Client"
-    (clerk/image "resources/images/canva-client.png"))]])
+                  (clerk/image (io/resource "images/canva-client.png")))]])
 
 ;; Upon reviewing the pages, I couldn't see a clear trend for the most popular layout techniques. The distribution of layout techniques seemed evenly spread.
 
@@ -349,7 +350,7 @@
 ; So, which layout technique should you choose? Unfortunately, there is no simple answer. You have to consider your specific needs:
 
  ^{:nextjournal.clerk/visibility {:code :hide}}
-(clerk/image "resources/images/layout-flow.png")
+(clerk/image (io/resource "images/layout-flow.png"))
 
 ; > **Note**
 ; > Those rules will have edge cases and might change the more I use Grid. For instance, Grid can style a dynamic number of elements, but I find Flexbox more intuitive here.
