@@ -266,13 +266,13 @@
    (clerk/caption "Dropbox Client"
                   (clerk/image (io/resource "images/dropbox-app.png")))]
   [(clerk/caption "Figma Landing"
-                  (clerk/image (io/resource "images/figma-Landing.png")))
+                  (clerk/image (io/resource "images/figma-landing.png")))
    (clerk/caption "Linear Landing"
                   (clerk/image (io/resource "images/linear-landing.png")))
    (clerk/caption "Spotify Client"
                   (clerk/image (io/resource "images/Spotify-Client.png")))]
   [(clerk/caption "Canva Landing"
-                  (clerk/image (io/resource "images/canva-Landing.png")))
+                  (clerk/image (io/resource "images/canva-landing.png")))
    (clerk/caption "Pitch Client"
                   (clerk/image (io/resource "images/pitch-client.png")))
    (clerk/caption "Slack Client"
