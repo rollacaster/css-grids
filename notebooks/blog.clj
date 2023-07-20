@@ -270,7 +270,7 @@
    (clerk/caption "Linear Landing"
                   (clerk/image (io/resource "images/linear-landing.png")))
    (clerk/caption "Spotify Client"
-                  (clerk/image (io/resource "images/Spotify-Client.png")))]
+                  (clerk/image (io/resource "images/spotify-client.png")))]
   [(clerk/caption "Canva Landing"
                   (clerk/image (io/resource "images/canva-landing.png")))
    (clerk/caption "Pitch Client"
