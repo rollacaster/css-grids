@@ -347,12 +347,14 @@
 ; I prefer to have fewer choices. Only one technique to use Grid would be fine for me. Even if I restrict myself to a small subset of Grid I regularly use, I might still get into a codebase that uses a different subset. That forces me to learn all possible flavors of Grid in the long run.
 
 ; ## Conclusion
-; So, which layout technique should you choose? Unfortunately, there is no simple answer. You have to consider your specific needs:
+; So, which layout technique should you choose? Unfortunately, there is no simple answer. You have to consider your specific needs. Here are my current rules of thumb for deciding which layout to use:
 
  ^{:nextjournal.clerk/visibility {:code :hide}}
 (clerk/image (io/resource "images/layout-flow.png"))
 
 ; > **Note**
 ; > Those rules will have edge cases and might change the more I use Grid. For instance, Grid can style a dynamic number of elements, but I find Flexbox more intuitive here.
+
+; These rules apply to any new section you add to your website. They are not specific to the top-level layout. Each time you add something, you can ask yourself those questions.
 
 ; You made it to the end. Thanks for following my journey to learn about Grid. I hope you found this journey valuable and that you can add CSS Grid to your CSS Toolbox.
